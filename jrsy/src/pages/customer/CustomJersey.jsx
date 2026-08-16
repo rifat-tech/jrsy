@@ -12,6 +12,19 @@ const COLORS = ['#B4122A', '#1E7FD6', '#0E7A3B', '#0B0B0F', '#F5B000', '#E0398A'
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL']
 const PRINT_FEE = 250
 
+// Bulk tiers — cheaper per piece as quantity grows.
+const TIERS = [
+  { min: 1, off: 0, label: '1–9 pcs', note: 'Standard' },
+  { min: 10, off: 0.10, label: '10–24 pcs', note: 'Save 10%' },
+  { min: 25, off: 0.15, label: '25–49 pcs', note: 'Save 15%' },
+  { min: 50, off: 0.20, label: '50–99 pcs', note: 'Save 20%' },
+  { min: 100, off: 0.25, label: '100+ pcs', note: 'Save 25%' },
+]
+const QUOTE_FROM = 50            // show "request a bulk quote" from this qty
+const WHATSAPP = '8801515282978' // 01515282978 in international format
+
+const tierFor = (qty) => TIERS.reduce((acc, t) => (qty >= t.min ? t : acc), TIERS[0])
+
 export default function CustomJersey() {
   const nav = useNavigate()
   const toast = useToast()
@@ -27,7 +40,10 @@ export default function CustomJersey() {
   const [uploading, setUploading] = useState(false)
 
   const base = TYPES.find((t) => t[0] === type)[2]
-  const unit = base + (name || number ? PRINT_FEE : 0)
+  const listUnit = base + (name || number ? PRINT_FEE : 0)
+  const tier = tierFor(qty)
+  const unit = Math.round(listUnit * (1 - tier.off))
+  const saved = (listUnit - unit) * qty
 
   async function onLogo(e) {
     const file = e.target.files?.[0]
@@ -49,6 +65,19 @@ export default function CustomJersey() {
     add(custom, size, qty)
     toast.success('Custom jersey added to cart.')
     nav('/cart')
+  }
+
+  function requestQuote() {
+    const label = TYPES.find((t) => t[0] === type)[1]
+    const msg =
+      `Hi JRSY! I'd like a bulk quote for custom jerseys:\n` +
+      `• Type: ${label}\n` +
+      `• Quantity: ${qty} pcs\n` +
+      `• Size: ${size}\n` +
+      (name ? `• Name: ${name}\n` : '') +
+      (number ? `• Number: ${number}\n` : '') +
+      `Could you share your best price and timeline?`
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
   return (
@@ -109,7 +138,32 @@ export default function CustomJersey() {
             </div>
             <div>
               <p className="label">Quantity</p>
-              <input type="number" min={1} value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value)))} className="field" />
+              <input type="number" min={1} value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))} className="field" />
+            </div>
+          </div>
+
+          {/* quick quantity presets */}
+          <div className="flex flex-wrap gap-2">
+            {[1, 11, 15, 25, 50, 100].map((n) => (
+              <button key={n} onClick={() => setQty(n)} className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${qty === n ? 'border-ink bg-ink text-paper' : 'border-ink/15 text-ink/60 hover:border-ink'}`}>
+                {n === 11 ? '11 (team)' : `${n} pcs`}
+              </button>
+            ))}
+          </div>
+
+          {/* bulk tier table */}
+          <div>
+            <p className="label">Bulk pricing — more pieces, lower price</p>
+            <div className="grid grid-cols-5 overflow-hidden rounded-xl border border-ink/10 text-center">
+              {TIERS.map((t) => {
+                const activeTier = t.min === tier.min
+                return (
+                  <div key={t.min} className={`px-1 py-2 ${activeTier ? 'bg-volt text-ink' : 'bg-white'}`}>
+                    <p className="text-[10px] font-black leading-tight">{t.label.replace(' pcs', '')}</p>
+                    <p className="text-[10px] leading-tight opacity-70">{t.note}</p>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -130,12 +184,26 @@ export default function CustomJersey() {
 
           <div className="card p-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ink/60">Unit price</span><span className="font-bold">{money(unit)}</span>
+              <span className="text-ink/60">Unit price {tier.off > 0 && <span className="ml-1 rounded bg-volt/30 px-1.5 py-0.5 text-[11px] font-bold text-ink">−{Math.round(tier.off * 100)}%</span>}</span>
+              <span className="font-bold">
+                {tier.off > 0 && <span className="mr-1 text-xs text-ink/40 line-through">{money(listUnit)}</span>}
+                {money(unit)}
+              </span>
             </div>
             <div className="mt-1 flex items-center justify-between text-lg font-black">
-              <span>Total</span><span>{money(unit * qty)}</span>
+              <span>Total ({qty} pcs)</span><span>{money(unit * qty)}</span>
             </div>
-            <button onClick={addToCart} className="btn-volt mt-4 w-full">Add custom jersey to cart</button>
+            {saved > 0 && <p className="mt-1 text-xs font-bold text-emerald-600">You save {money(saved)} on this order.</p>}
+
+            <button onClick={addToCart} className="btn-volt mt-4 w-full">Add to cart</button>
+
+            {qty >= QUOTE_FROM ? (
+              <button onClick={requestQuote} className="btn-ink mt-2 w-full">Get a bulk quote on WhatsApp</button>
+            ) : (
+              <button onClick={requestQuote} className="mt-2 w-full text-center text-xs font-bold uppercase tracking-wide text-ink/50 hover:text-ink">
+                Ordering a big batch? Request a custom quote →
+              </button>
+            )}
           </div>
         </div>
       </div>

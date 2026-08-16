@@ -1,6 +1,7 @@
 import { Outlet, ScrollRestoration } from 'react-router-dom'
 import Header from '../components/customer/Header'
 import Footer from '../components/customer/Footer'
+import ContactWidget from '../components/customer/ContactWidget'
 
 export default function CustomerLayout() {
   return (
@@ -10,6 +11,7 @@ export default function CustomerLayout() {
         <Outlet />
       </main>
       <Footer />
+      <ContactWidget />
       <ScrollRestoration />
     </div>
   )

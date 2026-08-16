@@ -12,6 +12,7 @@ const NAV = [
   { to: '/', label: 'Home', end: true },
   { to: '/football', label: 'Football' },
   { to: '/cricket', label: 'Cricket' },
+  { to: '/shop?category=accessories', label: 'Caps' },
   { to: '/custom', label: 'Custom Jersey' },
   { to: '/shop?filter=new', label: 'New Arrivals' },
   { to: '/shop?filter=best', label: 'Best Sellers' },
