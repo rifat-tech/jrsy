@@ -37,6 +37,7 @@ const AdminCoupons = lazy(() => import('./pages/admin/Coupons'))
 const AdminBanners = lazy(() => import('./pages/admin/Banners'))
 const AdminInventory = lazy(() => import('./pages/admin/Inventory'))
 const AdminSettings = lazy(() => import('./pages/admin/Settings'))
+const AdminCustomBuilder = lazy(() => import('./pages/admin/CustomBuilder'))
 
 const S = (el) => <Suspense fallback={<PageLoader />}>{el}</Suspense>
 
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
       { path: 'coupons', element: S(<AdminCoupons />) },
       { path: 'banners', element: S(<AdminBanners />) },
       { path: 'inventory', element: S(<AdminInventory />) },
+      { path: 'custom', element: S(<AdminCustomBuilder />) },
       { path: 'settings', element: S(<AdminSettings />) },
     ],
   },

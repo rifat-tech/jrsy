@@ -135,3 +135,39 @@ export const seedOrders = [
     createdAt: ago(2), updatedAt: ago(1),
   },
 ]
+
+// ---- Custom Jersey builder config (admin-editable, stored at settings/custom) ----
+export const seedCustomConfig = {
+  fabrics: [
+    { id: 'pp',    name: 'PP',                 price: 250, moq: 20, color: '#C9CDD4', image: '' },
+    { id: 'mesh',  name: 'Mesh',               price: 250, moq: 15, color: '#8FA3B0', image: '' },
+    { id: 'birds', name: 'Birdseye',           price: 350, moq: 10, color: '#6E7B8B', image: '' },
+    { id: 'honey', name: 'Honeycomb',          price: 330, moq: 10, color: '#B08968', image: '' },
+    { id: 'leaf',  name: 'Leaf Jacquard',      price: 350, moq: 10, color: '#4C7A57', image: '' },
+    { id: 'china', name: 'China Spandex',      price: 330, moq: 10, color: '#3B6FA0', image: '' },
+    { id: 'hcjac', name: 'Honeycomb Jacquard', price: 580, moq: 10, color: '#8A6D3B', image: '' },
+    { id: 'brush', name: 'Brush Jacquard',     price: 550, moq: 10, color: '#6B4E71', image: '' },
+    { id: 'nike',  name: 'Nike Jacquard',      price: 600, moq: 5,  color: '#2B2B2B', image: '' },
+  ],
+  sleeves: [
+    { id: 'sleeveless', name: 'Sleeveless', fee: 0 },
+    { id: 'half',       name: 'Half Sleeve', fee: 0 },
+    { id: 'full',       name: 'Full Sleeve', fee: 30 },
+  ],
+  necks: [
+    { id: 'round', name: 'Round Neck', fee: 0 },
+    { id: 'v',     name: 'V Neck',     fee: 10 },
+    { id: 'polo',  name: 'Polo Neck',  fee: 30 },
+  ],
+  frontNumberFee: 15,
+  colors: ['#B4122A', '#1E7FD6', '#0E7A3B', '#0B0B0F', '#F5B000', '#E0398A'],
+  fonts: [
+    { id: 'archivo',  label: 'Classic',   family: "'Archivo', sans-serif" },
+    { id: 'anton',    label: 'Bold',      family: "'Anton', sans-serif" },
+    { id: 'teko',     label: 'Tall',      family: "'Teko', sans-serif" },
+    { id: 'oswald',   label: 'Condensed', family: "'Oswald', sans-serif" },
+    { id: 'rajdhani', label: 'Tech',      family: "'Rajdhani', sans-serif" },
+    { id: 'saira',    label: 'Sport',     family: "'Saira Condensed', sans-serif" },
+  ],
+  note: 'Customized products require advance payment.',
+}

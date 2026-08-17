@@ -1,7 +1,7 @@
 import { isFirebaseReady, db } from '../firebase/config'
 import {
   seedProducts, seedCategories, seedBanners, seedCoupons,
-  seedReviews, seedSettings, seedUsers, seedOrders,
+  seedReviews, seedSettings, seedUsers, seedOrders, seedCustomConfig,
 } from '../data/mockData'
 
 /* ------------------------------------------------------------------ *
@@ -315,6 +315,22 @@ export const api = {
     await setDoc(doc(db, 'settings', 'store'), settings, { merge: true }); return settings
   },
 
+  /* ------------------------------ CUSTOM JERSEY CONFIG ------------------------------ */
+  async getCustomConfig() {
+    if (!isFirebaseReady) {
+      const s = loadStore()
+      return s.customConfig || seedCustomConfig
+    }
+    const { doc, getDoc } = await firestore()
+    const snap = await getDoc(doc(db, 'settings', 'custom'))
+    return snap.exists() ? snap.data() : seedCustomConfig
+  },
+  async saveCustomConfig(config) {
+    if (!isFirebaseReady) { const s = loadStore(); s.customConfig = config; saveStore(s); return config }
+    const { doc, setDoc } = await firestore()
+    await setDoc(doc(db, 'settings', 'custom'), config, { merge: false }); return config
+  },
+
   /* ------------------------------ WISHLIST (per user) ------------------------------ */
   async getWishlist(userId) {
     if (!userId) return []
@@ -350,6 +366,7 @@ export const api = {
     seedCoupons.forEach((c) => batch.set(doc(db, 'coupons', c.id), c))
     seedReviews.forEach((r) => batch.set(doc(db, 'reviews', r.id), r))
     batch.set(doc(db, 'settings', 'store'), seedSettings)
+    batch.set(doc(db, 'settings', 'custom'), seedCustomConfig)
     await batch.commit()
     return { ok: true, message: `Imported ${seedProducts.length} products, ${seedCategories.length} categories, ${seedBanners.length} banners.` }
   },

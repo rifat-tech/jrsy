@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate, Link, ScrollRestoration } from 'react-router-dom'
 import {
   LayoutDashboard, Package, FolderTree, ShoppingCart, Users, Star,
-  Ticket, Image, Boxes, Settings, LogOut, Menu, X, ExternalLink,
+  Ticket, Image, Boxes, Settings, LogOut, Menu, X, ExternalLink, Shirt,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -19,6 +19,7 @@ const NAV = [
   { to: '/admin/coupons', label: 'Coupons', icon: Ticket },
   { to: '/admin/banners', label: 'Banners', icon: Image },
   { to: '/admin/inventory', label: 'Inventory', icon: Boxes },
+  { to: '/admin/custom', label: 'Custom Jersey', icon: Shirt },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
