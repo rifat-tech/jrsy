@@ -35,6 +35,7 @@ export default function CustomJersey() {
   const [fontId, setFontId] = useState('')
   const [logo, setLogo] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [zoom, setZoom] = useState(null)
 
   // load admin-managed config
   useEffect(() => {
@@ -131,15 +132,15 @@ export default function CustomJersey() {
           <div className="relative mx-auto flex max-w-[460px] items-center justify-center rounded-3xl bg-chalk p-6">
             <div className="relative w-full max-w-[400px]" style={{ aspectRatio: '600 / 700' }}>
               <img src={baseJersey} alt="Custom jersey preview" className="absolute inset-0 h-full w-full object-contain" />
-              {logo && <img src={logo} alt="crest" className="absolute left-1/2 top-[30%] h-12 w-12 -translate-x-1/2 rounded object-contain" />}
+              {logo && <img src={logo} alt="crest" className="absolute left-1/2 top-[32%] h-10 w-10 -translate-x-1/2 rounded object-contain" />}
               {name && (
-                <div className="absolute left-1/2 top-[33%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-black uppercase tracking-widest text-white"
-                     style={{ fontFamily: font?.family, fontSize: 'clamp(12px, 3.4vw, 22px)', WebkitTextStroke: '1px #0B0B0F' }}>
+                <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-black uppercase tracking-widest text-white"
+                     style={{ fontFamily: font?.family, fontSize: 'clamp(10px, 2.6vw, 18px)', WebkitTextStroke: '0.8px #0B0B0F' }}>
                   {name.slice(0, 12)}
                 </div>
               )}
-              <div className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 font-black text-white"
-                   style={{ fontFamily: font?.family, fontSize: 'clamp(64px, 22vw, 150px)', lineHeight: 1, WebkitTextStroke: '2px #0B0B0F' }}>
+              <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 font-black text-white"
+                   style={{ fontFamily: font?.family, fontSize: 'clamp(48px, 16vw, 104px)', lineHeight: 1, WebkitTextStroke: '2px #0B0B0F' }}>
                 {number || '0'}
               </div>
             </div>
@@ -343,16 +344,19 @@ export default function CustomJersey() {
         <div className="mb-8 text-center">
           <span className="kicker text-volt">Fabric</span>
           <h2 className="mt-1 text-3xl font-black sm:text-4xl">Soft, comfortable, premium feel</h2>
-          <p className="mx-auto mt-2 max-w-xl text-paper/60">Our fabrics are carefully selected and rigorously tested for comfort, durability and style — a soft, breathable feel every time you wear it.</p>
+          <p className="mx-auto mt-2 max-w-xl text-paper/60">Carefully selected and rigorously tested for comfort, durability and style. Tap any fabric to see the texture up close.</p>
         </div>
-        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {cfg.fabrics.map((f) => (
-            <div key={f.id} className="text-center">
-              <div className="mx-auto aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10" style={{ background: f.color }}>
-                {f.image && <img src={f.image} alt={f.name} className="h-full w-full object-cover" />}
+            <button key={f.id} onClick={() => f.image && setZoom({ src: f.image, name: f.name })} className="group text-center">
+              <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10" style={{ background: f.color }}>
+                {f.image
+                  ? <img src={f.image} alt={f.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                  : <span className="flex h-full w-full items-center justify-center text-xs text-white/50">No photo</span>}
+                {f.image && <span className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-[10px] font-bold text-white opacity-0 transition group-hover:opacity-100">Tap to zoom</span>}
               </div>
-              <p className="mt-2 text-xs font-bold">{f.name}</p>
-            </div>
+              <p className="mt-2 text-sm font-bold">{f.name}</p>
+            </button>
           ))}
         </div>
       </section>
@@ -394,6 +398,17 @@ export default function CustomJersey() {
 
       {/* Shipping partners + charges */}
       <ShippingSection couriers={cfg.shipping || []} />
+
+      {/* Fabric zoom viewer */}
+      {zoom && (
+        <div className="fixed inset-0 z-[95] flex flex-col items-center justify-center bg-ink/90 p-4 animate-fade-in" onClick={() => setZoom(null)}>
+          <img src={zoom.src} alt={zoom.name} className="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl" onClick={(e) => e.stopPropagation()} />
+          <div className="mt-4 flex items-center gap-3 text-paper">
+            <span className="font-bold">{zoom.name}</span>
+            <button onClick={() => setZoom(null)} className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold hover:bg-white/20">Close ✕</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
