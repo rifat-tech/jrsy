@@ -110,11 +110,25 @@ export default function CustomJersey() {
         <a href="#sizechart" className="btn-ghost text-xs"><Ruler size={15} /> Size chart</a>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_460px]">
-        {/* live preview */}
-        <div className="space-y-4">
-          <div className="relative flex items-center justify-center rounded-3xl bg-chalk p-6">
-            <div className="relative w-full max-w-[420px]" style={{ aspectRatio: '600 / 700' }}>
+      {/* Design gallery hero (Tribe-style) */}
+      {(cfg.gallery || []).length > 0 && (
+        <section className="mb-14">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+            {cfg.gallery.slice(0, 12).map((src, i) => (
+              <div key={i} className="group aspect-square overflow-hidden rounded-2xl border border-ink/10 bg-chalk">
+                <img src={src} alt={`Design ${i + 1}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-center text-sm text-ink/50">Over {cfg.gallery.length} designs to personalise — or build your own below.</p>
+        </section>
+      )}
+
+      <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
+        {/* live preview (sticky) */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="relative mx-auto flex max-w-[460px] items-center justify-center rounded-3xl bg-chalk p-6">
+            <div className="relative w-full max-w-[400px]" style={{ aspectRatio: '600 / 700' }}>
               <img src={baseJersey} alt="Custom jersey preview" className="absolute inset-0 h-full w-full object-contain" />
               {logo && <img src={logo} alt="crest" className="absolute left-1/2 top-[30%] h-12 w-12 -translate-x-1/2 rounded object-contain" />}
               {name && (
@@ -129,24 +143,7 @@ export default function CustomJersey() {
               </div>
             </div>
           </div>
-
-          {/* design gallery */}
-          {(cfg.gallery || []).length > 0 && (
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <p className="label mb-0">Design gallery</p>
-                <span className="text-xs text-ink/40">Get inspired · {cfg.gallery.length} designs</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {cfg.gallery.map((src, i) => (
-                  <div key={i} className="aspect-square overflow-hidden rounded-xl border border-ink/10 bg-chalk">
-                    <img src={src} alt={`Design ${i + 1}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
-                  </div>
-                ))}
-              </div>
-              <p className="mt-2 text-xs text-ink/50">Like a design? Mention its number when you request a quote and we'll match it.</p>
-            </div>
-          )}
+          <p className="mt-3 text-center text-xs text-ink/40">Live preview · colours, name, number & font update as you build.</p>
         </div>
 
         {/* controls */}
@@ -279,24 +276,6 @@ export default function CustomJersey() {
       </div>
 
       {/* ============ SHOWCASE SECTIONS (Tribe-style) ============ */}
-
-      {/* Design gallery */}
-      {(cfg.gallery || []).length > 0 && (
-        <section className="mt-20">
-          <div className="mb-6 text-center">
-            <span className="kicker">Design gallery</span>
-            <h2 className="mt-1 text-3xl font-black sm:text-4xl">1000+ designs to personalise</h2>
-            <p className="mx-auto mt-2 max-w-xl text-ink/50">Premium jerseys with affordable pricing you can trust. Pick a design, change colours, add your name & number — or bring your own idea.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {cfg.gallery.map((src, i) => (
-              <div key={i} className="group aspect-square overflow-hidden rounded-2xl border border-ink/10 bg-chalk">
-                <img src={src} alt={`Design ${i + 1}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Price table */}
       <section className="mt-20">
