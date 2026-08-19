@@ -139,15 +139,15 @@ export const seedOrders = [
 // ---- Custom Jersey builder config (admin-editable, stored at settings/custom) ----
 export const seedCustomConfig = {
   fabrics: [
-    { id: 'pp',    name: 'PP',                 price: 250, moq: 20, color: '#C9CDD4', image: '' },
-    { id: 'mesh',  name: 'Mesh',               price: 250, moq: 15, color: '#8FA3B0', image: '' },
-    { id: 'birds', name: 'Birdseye',           price: 350, moq: 10, color: '#6E7B8B', image: '' },
-    { id: 'honey', name: 'Honeycomb',          price: 330, moq: 10, color: '#B08968', image: '' },
-    { id: 'leaf',  name: 'Leaf Jacquard',      price: 350, moq: 10, color: '#4C7A57', image: '' },
-    { id: 'china', name: 'China Spandex',      price: 330, moq: 10, color: '#3B6FA0', image: '' },
-    { id: 'hcjac', name: 'Honeycomb Jacquard', price: 580, moq: 10, color: '#8A6D3B', image: '' },
-    { id: 'brush', name: 'Brush Jacquard',     price: 550, moq: 10, color: '#6B4E71', image: '' },
-    { id: 'nike',  name: 'Nike Jacquard',      price: 600, moq: 5,  color: '#2B2B2B', image: '' },
+    { id: 'pp',    name: 'PP',                 price: 250, mrp: 280, moq: 20, color: '#C9CDD4', image: '' },
+    { id: 'mesh',  name: 'Mesh',               price: 250, mrp: 300, moq: 15, color: '#8FA3B0', image: '' },
+    { id: 'birds', name: 'Birdseye',           price: 350, mrp: 0,   moq: 10, color: '#6E7B8B', image: '' },
+    { id: 'honey', name: 'Honeycomb',          price: 330, mrp: 380, moq: 10, color: '#B08968', image: '' },
+    { id: 'leaf',  name: 'Leaf Jacquard',      price: 350, mrp: 460, moq: 10, color: '#4C7A57', image: '' },
+    { id: 'china', name: 'China Spandex',      price: 330, mrp: 500, moq: 10, color: '#3B6FA0', image: '' },
+    { id: 'hcjac', name: 'Honeycomb Jacquard', price: 580, mrp: 0,   moq: 10, color: '#8A6D3B', image: '' },
+    { id: 'brush', name: 'Brush Jacquard',     price: 550, mrp: 0,   moq: 10, color: '#6B4E71', image: '' },
+    { id: 'nike',  name: 'Nike Jacquard',      price: 600, mrp: 0,   moq: 5,  color: '#2B2B2B', image: '' },
   ],
   sleeves: [
     { id: 'sleeveless', name: 'Sleeveless', fee: 0 },

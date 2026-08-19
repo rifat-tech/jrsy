@@ -95,9 +95,10 @@ export default function CustomBuilder() {
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => fabricImg(f.id, e.target.files?.[0])} />
                 </label>
               </div>
-              <div className="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-5">
                 <Field label="Name" value={f.name} onChange={(v) => updFabric(f.id, 'name', v)} />
-                <Field label="Price ৳" type="number" value={f.price} onChange={(v) => updFabric(f.id, 'price', v)} />
+                <Field label="Offer ৳" type="number" value={f.price} onChange={(v) => updFabric(f.id, 'price', v)} />
+                <Field label="Was ৳ (0=none)" type="number" value={f.mrp || 0} onChange={(v) => updFabric(f.id, 'mrp', Number(v) || 0)} />
                 <Field label="MOQ" type="number" value={f.moq} onChange={(v) => updFabric(f.id, 'moq', v)} />
                 <div>
                   <label className="label">Fallback colour</label>

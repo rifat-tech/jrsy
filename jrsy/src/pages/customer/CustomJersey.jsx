@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, X, Ruler, Info } from 'lucide-react'
+import { Upload, X, Ruler, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 import { jerseySvg } from '../../utils/jersey'
+import { NECK_DRAWINGS, NECK_ORDER } from '../../utils/necks'
 import { uploadImage } from '../../services/storage'
 import { api } from '../../services/db'
 import { useCart } from '../../context/CartContext'
@@ -281,27 +282,29 @@ export default function CustomJersey() {
       <section className="mt-20">
         <div className="mb-6 text-center">
           <span className="kicker">Price table</span>
-          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Affordable, yet premium</h2>
-          <p className="mx-auto mt-2 max-w-2xl text-ink/50">Base prices are for round-neck half-sleeve jerseys by fabric quality. Extra options are in the add-ons chart.</p>
+          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Premium jerseys, affordable pricing</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-ink/50">Prices below are for <b>Round Neck Half-Sleeve</b> jerseys by fabric quality. For Full-Sleeve or Polo Neck, see the add-ons chart.</p>
         </div>
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
           <div className="card overflow-hidden p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-ink text-left text-xs uppercase tracking-wide text-paper">
-                  <tr><th className="px-4 py-3">Fabric</th><th className="px-4 py-3">MOQ</th><th className="px-4 py-3 text-right">Price / pc</th></tr>
+                  <tr><th className="px-3 py-3">SL</th><th className="px-3 py-3">Fabric</th><th className="px-3 py-3">MOQ</th><th className="px-3 py-3">Price</th><th className="px-3 py-3 text-right">Offer</th></tr>
                 </thead>
                 <tbody className="divide-y divide-ink/5">
-                  {cfg.fabrics.map((f) => (
+                  {cfg.fabrics.map((f, i) => (
                     <tr key={f.id} className="hover:bg-ink/[0.02]">
-                      <td className="px-4 py-3 font-bold">
+                      <td className="px-3 py-3 text-ink/40">{i + 1}</td>
+                      <td className="px-3 py-3 font-bold">
                         <span className="flex items-center gap-2">
                           <span className="h-6 w-6 overflow-hidden rounded border border-ink/10" style={{ background: f.color }}>{f.image && <img src={f.image} alt="" className="h-full w-full object-cover" />}</span>
                           {f.name}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-ink/60">{f.moq} pcs</td>
-                      <td className="px-4 py-3 text-right font-black">{money(f.price)}</td>
+                      <td className="px-3 py-3 text-ink/60">{f.moq}</td>
+                      <td className="px-3 py-3">{f.mrp > 0 ? <span className="text-ink/40 line-through">{money(f.mrp)}</span> : <span className="font-bold">{money(f.price)}</span>}</td>
+                      <td className="px-3 py-3 text-right font-black">{f.mrp > 0 ? money(f.price) : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -318,6 +321,20 @@ export default function CustomJersey() {
               <div className="flex items-center justify-between text-sm"><span className="text-ink/60">Front number</span><span className="font-bold">+{money(Number(cfg.frontNumberFee) || 15)}</span></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Affordable / Yet Premium — neck drawings */}
+      <section className="mt-20">
+        <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]">
+          <div>
+            <h2 className="font-display text-4xl font-black italic text-ink/30 sm:text-5xl">Affordable</h2>
+            <h2 className="font-display text-4xl font-black text-ink sm:text-5xl">Yet <span className="italic">Premium</span></h2>
+            <p className="mt-5 text-sm leading-relaxed text-ink/60">
+              Our jerseys are crafted to be <b>top-notch premium quality</b>, with the finest materials and design — at <b>the most affordable yet premium</b> pricing in Bangladesh. Every order is backed by a <b>refund &amp; exchange policy</b>, a <b>top-class design team</b>, and <b>exceptional after-sales service</b>. Premium quality, reliable service, and peace of mind with every purchase.
+            </p>
+          </div>
+          <NeckCarousel />
         </div>
       </section>
 
@@ -345,13 +362,16 @@ export default function CustomJersey() {
         <div className="mb-6 text-center">
           <span className="kicker">Size chart</span>
           <h2 className="mt-1 text-3xl font-black sm:text-4xl">Your perfect fit, guaranteed</h2>
-          <p className="mx-auto mt-2 max-w-xl text-ink/50">Measurements in inches. Pick the size closest to your chest measurement.</p>
+          <p className="mx-auto mt-2 max-w-xl text-ink/50">Our size chart helps you choose the right fit with confidence. Measurements in inches — no guesswork needed.</p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="card p-5"><SizeTable title="Men's" rows={MENS} /></div>
-          <div className="card p-5"><SizeTable title="Kids" rows={KIDS} /></div>
+        <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.3fr]">
+          <div>
+            <h3 className="font-display text-4xl font-black italic text-ink/25 sm:text-5xl">Perfect <span className="not-italic text-ink">Fit</span></h3>
+            <h3 className="font-display text-4xl font-black text-ink/25 sm:text-5xl">For <span className="italic text-ink">Everyone</span></h3>
+            <p className="mt-4 text-sm leading-relaxed text-ink/60">Our sizes are carefully tested by expert pattern masters. Whether it's for kids, men, or oversized fits, you'll get the perfect balance of style and ease.</p>
+          </div>
+          <SizeChartToggle mens={MENS} kids={KIDS} />
         </div>
-        <p className="mx-auto mt-4 max-w-2xl rounded-xl bg-chalk p-3 text-center text-xs text-ink/60">Kids sizes: body growth varies and the neck opening may not fit — please choose carefully.</p>
       </section>
 
       {/* Font collection */}
@@ -449,6 +469,54 @@ function SizeTable({ title, rows }) {
         <thead className="text-left text-xs uppercase text-ink/50"><tr><th className="py-1">Size</th><th className="py-1">Chest</th><th className="py-1">Length</th></tr></thead>
         <tbody className="divide-y divide-ink/5">{rows.map(([s, c, l]) => <tr key={s}><td className="py-1.5 font-bold">{s}</td><td className="py-1.5">{c}"</td><td className="py-1.5">{l}"</td></tr>)}</tbody>
       </table>
+    </div>
+  )
+}
+
+function SizeChartToggle({ mens, kids }) {
+  const [tab, setTab] = useState('mens')
+  const rows = tab === 'mens' ? mens : kids
+  return (
+    <div>
+      <div className="mb-3 flex justify-center gap-2 lg:justify-end">
+        {[['mens', "Men's"], ['kids', "Kids"]].map(([v, l]) => (
+          <button key={v} onClick={() => setTab(v)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${tab === v ? 'bg-ink text-paper' : 'bg-white text-ink/60 hover:bg-ink/5'}`}>{l}</button>
+        ))}
+      </div>
+      <div className="card overflow-hidden p-0">
+        <table className="w-full text-sm">
+          <thead className="bg-ink/[0.04] text-left text-xs uppercase tracking-wide text-ink/50">
+            <tr><th className="px-4 py-3">Size</th><th className="px-4 py-3">Chest</th><th className="px-4 py-3">Length</th></tr>
+          </thead>
+          <tbody className="divide-y divide-ink/5">
+            {rows.map(([s, c, l]) => <tr key={s} className="hover:bg-ink/[0.02]"><td className="px-4 py-2.5 font-bold">{s}</td><td className="px-4 py-2.5">{c}"</td><td className="px-4 py-2.5">{l}"</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      {tab === 'kids' && <p className="mt-3 rounded-xl bg-chalk p-3 text-xs text-ink/60">Kids sizes: body growth varies and the neck opening may not fit — please choose carefully.</p>}
+    </div>
+  )
+}
+
+function NeckCarousel() {
+  const [i, setI] = useState(0)
+  const per = 3
+  const total = NECK_ORDER.length
+  const prev = () => setI((x) => (x - 1 + total) % total)
+  const next = () => setI((x) => (x + 1) % total)
+  const shown = Array.from({ length: per }, (_, k) => NECK_ORDER[(i + k) % total])
+  return (
+    <div className="flex items-center gap-2">
+      <button onClick={prev} className="shrink-0 rounded-full border border-ink/15 p-2 text-ink/50 hover:border-ink hover:text-ink"><ChevronLeft size={18} /></button>
+      <div className="grid flex-1 grid-cols-3 gap-3">
+        {shown.map((key) => (
+          <div key={key} className="rounded-2xl border border-ink/10 bg-white p-3 text-center">
+            <div className="mx-auto h-24 w-full">{NECK_DRAWINGS[key].svg}</div>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-ink/50">{NECK_DRAWINGS[key].label}</p>
+          </div>
+        ))}
+      </div>
+      <button onClick={next} className="shrink-0 rounded-full border border-ink/15 p-2 text-ink/50 hover:border-ink hover:text-ink"><ChevronRight size={18} /></button>
     </div>
   )
 }
