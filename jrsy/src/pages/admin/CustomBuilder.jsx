@@ -73,7 +73,7 @@ export default function CustomBuilder() {
       }
       await api.saveCustomConfig(clean)
       toast.success('Custom builder updated. Changes are live.')
-    } catch { toast.error('Could not save. Try again.') }
+    } catch (e) { console.error('Custom save failed:', e); toast.error(`Could not save: ${e?.message || 'unknown error'}`) }
     finally { setSaving(false) }
   }
 

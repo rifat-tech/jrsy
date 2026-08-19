@@ -316,19 +316,78 @@ export const api = {
   },
 
   /* ------------------------------ CUSTOM JERSEY CONFIG ------------------------------ */
+  // The config can hold many images (fabric photos, gallery), which easily exceeds
+  // Firestore's 1MB-per-document limit. So we JSON-encode it and split across
+  // several docs in the `settings` collection (settings/custom = metadata,
+  // settings/custom_0, custom_1, … = data chunks). Existing rules for
+  // `settings/{id}` already cover these, so no rules change is needed.
   async getCustomConfig() {
     if (!isFirebaseReady) {
       const s = loadStore()
       return s.customConfig || seedCustomConfig
     }
     const { doc, getDoc } = await firestore()
-    const snap = await getDoc(doc(db, 'settings', 'custom'))
-    return snap.exists() ? snap.data() : seedCustomConfig
+    const meta = await getDoc(doc(db, 'settings', 'custom'))
+    if (!meta.exists()) return seedCustomConfig
+    const d = meta.data()
+    if (d.chunks == null) return d // legacy single-doc config (backward compatible)
+    let json = ''
+    for (let i = 0; i < d.chunks; i++) {
+      const c = await getDoc(doc(db, 'settings', `custom_${i}`))
+      if (c.exists()) json += c.data().data || ''
+    }
+    try { return JSON.parse(json) } catch { return seedCustomConfig }
   },
   async saveCustomConfig(config) {
     if (!isFirebaseReady) { const s = loadStore(); s.customConfig = config; saveStore(s); return config }
-    const { doc, setDoc } = await firestore()
-    await setDoc(doc(db, 'settings', 'custom'), config, { merge: false }); return config
+    const { doc, setDoc, getDoc, writeBatch, deleteDoc } = await firestore()
+
+    // Guard: any single image data-URI must fit inside one Firestore doc (<1MB).
+    // Legacy images uploaded before compression can be huge — shrink them here.
+    const shrink = (dataUrl) => new Promise((res) => {
+      if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image') || dataUrl.length < 700000) return res(dataUrl)
+      try {
+        const img = new Image()
+        img.onload = () => {
+          const max = 500; let { width, height } = img
+          if (width > height && width > max) { height = Math.round(height * max / width); width = max }
+          else if (height > max) { width = Math.round(width * max / height); height = max }
+          const c = document.createElement('canvas'); c.width = width; c.height = height
+          const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height); ctx.drawImage(img, 0, 0, width, height)
+          res(c.toDataURL('image/jpeg', 0.55))
+        }
+        img.onerror = () => res('')
+        img.src = dataUrl
+      } catch { res(dataUrl) }
+    })
+
+    const clean = { ...config }
+    if (Array.isArray(clean.fabrics)) clean.fabrics = await Promise.all(clean.fabrics.map(async (f) => ({ ...f, image: await shrink(f.image) })))
+    if (Array.isArray(clean.gallery)) clean.gallery = await Promise.all(clean.gallery.map((g) => shrink(g)))
+
+    let prevChunks = 0
+    try { const m = await getDoc(doc(db, 'settings', 'custom')); if (m.exists()) prevChunks = m.data().chunks || 0 } catch {}
+
+    const json = JSON.stringify(clean)
+    const SIZE = 700000 // safe margin under the 1MB per-doc limit
+    const chunks = []
+    for (let i = 0; i < json.length; i += SIZE) chunks.push(json.slice(i, i + SIZE))
+    if (chunks.length === 0) chunks.push('{}')
+
+    try {
+      const batch = writeBatch(db)
+      batch.set(doc(db, 'settings', 'custom'), { chunks: chunks.length, updatedAt: Date.now() })
+      chunks.forEach((c, i) => batch.set(doc(db, 'settings', `custom_${i}`), { data: c }))
+      await batch.commit()
+    } catch (e) {
+      // surface the real reason instead of a generic failure
+      throw new Error(e?.message || 'Firestore write failed')
+    }
+
+    for (let i = chunks.length; i < prevChunks; i++) {
+      try { await deleteDoc(doc(db, 'settings', `custom_${i}`)) } catch {}
+    }
+    return clean
   },
 
   /* ------------------------------ WISHLIST (per user) ------------------------------ */
