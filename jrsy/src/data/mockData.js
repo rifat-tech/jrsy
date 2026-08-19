@@ -160,6 +160,28 @@ export const seedCustomConfig = {
     { id: 'polo',  name: 'Polo Neck',  fee: 30 },
   ],
   frontNumberFee: 15,
+  gallery: [],
+  shipping: [
+    {
+      id: 'pathao', name: 'Pathao', kind: 'Home delivery',
+      info: 'Inside Dhaka 1–2 days · Outside 2–3 days',
+      rates: [
+        ['1-2', 60, 110], ['3-4', 70, 130], ['5-8', 90, 170], ['9-12', 110, 200],
+        ['13-16', 130, 230], ['17-20', 150, 260], ['21-24', 170, 290], ['25-28', 190, 320],
+        ['29-32', 210, 350], ['33-36', 230, 380], ['37-40', 250, 410], ['41-48', 280, 460], ['49-58', 325, 510],
+      ],
+    },
+    {
+      id: 'sa', name: 'SA Paribahan', kind: 'Hub to hub',
+      info: 'Inside & outside Dhaka in 1 day',
+      rates: [['1-5', 80, 120], ['6-10', 120, 160], ['11-20', 180, 240], ['21-40', 300, 420], ['41-58', 420, 600]],
+    },
+    {
+      id: 'rider', name: 'Rider', kind: 'Instant (Dhaka only)',
+      info: 'Delivered within 10 hours',
+      rates: [['1-4', 100, 0], ['5-10', 150, 0], ['11-20', 220, 0], ['21-40', 380, 0]],
+    },
+  ],
   colors: ['#B4122A', '#1E7FD6', '#0E7A3B', '#0B0B0F', '#F5B000', '#E0398A'],
   fonts: [
     { id: 'archivo',  label: 'Classic',   family: "'Archivo', sans-serif" },

@@ -14,8 +14,9 @@ export default function CustomBuilder() {
   const [cfg, setCfg] = useState(null)
   const [saving, setSaving] = useState(false)
   const [uploadingId, setUploadingId] = useState('')
+  const [galleryUploading, setGalleryUploading] = useState(false)
 
-  useEffect(() => { api.getCustomConfig().then(setCfg) }, [])
+  useEffect(() => { api.getCustomConfig().then((c) => setCfg({ gallery: [], shipping: [], ...c })) }, [])
   if (!cfg) return <PageLoader label="Loading custom builder settings" />
 
   const set = (patch) => setCfg((c) => ({ ...c, ...patch }))
@@ -40,6 +41,25 @@ export default function CustomBuilder() {
   const updColor = (i, v) => set({ colors: cfg.colors.map((c, idx) => (idx === i ? v : c)) })
   const addColor = () => set({ colors: [...cfg.colors, '#999999'] })
   const delColor = (i) => set({ colors: cfg.colors.filter((_, idx) => idx !== i) })
+
+  // ---- gallery ----
+  async function addGallery(files) {
+    if (!files?.length) return
+    setGalleryUploading(true)
+    try {
+      const urls = []
+      for (const f of Array.from(files)) urls.push(await uploadImage(f, 'gallery'))
+      set({ gallery: [...(cfg.gallery || []), ...urls] })
+    } finally { setGalleryUploading(false) }
+  }
+  const delGallery = (i) => set({ gallery: (cfg.gallery || []).filter((_, idx) => idx !== i) })
+
+  // ---- shipping ----
+  const shipping = cfg.shipping || []
+  const updCourier = (cid, k, v) => set({ shipping: shipping.map((c) => (c.id === cid ? { ...c, [k]: v } : c)) })
+  const addRate = (cid) => set({ shipping: shipping.map((c) => (c.id === cid ? { ...c, rates: [...c.rates, ['', 0, 0]] } : c)) })
+  const updRate = (cid, i, j, v) => set({ shipping: shipping.map((c) => (c.id === cid ? { ...c, rates: c.rates.map((r, ri) => (ri === i ? r.map((x, xi) => (xi === j ? (j === 0 ? v : Number(v) || 0) : x)) : r)) } : c)) })
+  const delRate = (cid, i) => set({ shipping: shipping.map((c) => (c.id === cid ? { ...c, rates: c.rates.filter((_, ri) => ri !== i) } : c)) })
 
   async function save() {
     setSaving(true)
@@ -91,6 +111,29 @@ export default function CustomBuilder() {
         <p className="mt-2 text-[11px] text-ink/40">Hover a swatch to upload a fabric photo. No photo → the fallback colour shows.</p>
       </Panel>
 
+      {/* DESIGN GALLERY */}
+      <Panel title="Design gallery" className="mb-6"
+        action={
+          <label className="btn-ghost cursor-pointer text-xs">
+            {galleryUploading ? <Spinner size={14} /> : <Plus size={14} />} Add images
+            <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addGallery(e.target.files)} />
+          </label>
+        }>
+        {(cfg.gallery || []).length === 0 ? (
+          <p className="py-4 text-center text-sm text-ink/40">No gallery images yet. Upload jersey design examples — they show under the preview on the builder.</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-6">
+            {cfg.gallery.map((src, i) => (
+              <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-ink/10 bg-chalk">
+                <img src={src} alt="" className="h-full w-full object-cover" />
+                <button onClick={() => delGallery(i)} className="absolute right-1 top-1 rounded-full bg-white/90 p-1 text-flare opacity-0 shadow group-hover:opacity-100"><Trash2 size={13} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="mt-2 text-[11px] text-ink/40">Square images look best. These appear as a scrollable design grid under the jersey preview.</p>
+      </Panel>
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* SLEEVES */}
         <Panel title="Sleeve options" action={<button onClick={() => addItem('sleeves', { name: 'New', fee: 0 })} className="btn-ghost text-xs"><Plus size={14} /> Add</button>}>
@@ -124,6 +167,40 @@ export default function CustomBuilder() {
           </div>
         </Panel>
       </div>
+
+      {/* SHIPPING */}
+      <Panel title="Shipping charges" className="mt-6">
+        <p className="mb-4 text-xs text-ink/50">Edit each courier's name, delivery info, and piece-based rate table (shown on the custom jersey page). Set Outside Dhaka to 0 to show a dash.</p>
+        <div className="space-y-6">
+          {shipping.map((c) => (
+            <div key={c.id} className="rounded-xl border border-ink/10 p-4">
+              <div className="mb-3 grid gap-2 sm:grid-cols-3">
+                <Field label="Courier name" value={c.name} onChange={(v) => updCourier(c.id, 'name', v)} />
+                <Field label="Delivery type" value={c.kind} onChange={(v) => updCourier(c.id, 'kind', v)} />
+                <Field label="Info" value={c.info} onChange={(v) => updCourier(c.id, 'info', v)} />
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[420px] text-sm">
+                  <thead className="text-left text-xs uppercase text-ink/40">
+                    <tr><th className="py-1">Pieces</th><th className="py-1">Inside Dhaka ৳</th><th className="py-1">Outside Dhaka ৳</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    {c.rates.map((r, i) => (
+                      <tr key={i}>
+                        <td className="py-1 pr-2"><input value={r[0]} onChange={(e) => updRate(c.id, i, 0, e.target.value)} className="field w-full py-1 text-sm" placeholder="1-2" /></td>
+                        <td className="py-1 pr-2"><input type="number" value={r[1]} onChange={(e) => updRate(c.id, i, 1, e.target.value)} className="field w-full py-1 text-sm" /></td>
+                        <td className="py-1 pr-2"><input type="number" value={r[2]} onChange={(e) => updRate(c.id, i, 2, e.target.value)} className="field w-full py-1 text-sm" /></td>
+                        <td><button onClick={() => delRate(c.id, i)} className="text-ink/40 hover:text-flare"><Trash2 size={14} /></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button onClick={() => addRate(c.id)} className="btn-ghost mt-2 text-xs"><Plus size={13} /> Add rate row</button>
+            </div>
+          ))}
+        </div>
+      </Panel>
 
       {/* FONTS */}
       <Panel title="Fonts" className="mt-6" action={<button onClick={() => addItem('fonts', { label: 'New', family: "'Archivo', sans-serif" })} className="btn-ghost text-xs"><Plus size={14} /> Add</button>}>

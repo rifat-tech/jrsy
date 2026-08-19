@@ -7,7 +7,7 @@ import { api } from '../../services/db'
 import { useCart } from '../../context/CartContext'
 import { useToast } from '../../context/ToastContext'
 import { money } from '../../utils/format'
-import { Modal, PageLoader } from '../../components/ui'
+import { PageLoader } from '../../components/ui'
 
 const FRONT_NUMBER_FEE_FALLBACK = 15
 const WHATSAPP = '8801515282978' // 01515282978 international
@@ -34,7 +34,6 @@ export default function CustomJersey() {
   const [fontId, setFontId] = useState('')
   const [logo, setLogo] = useState('')
   const [uploading, setUploading] = useState(false)
-  const [sizeOpen, setSizeOpen] = useState(false)
 
   // load admin-managed config
   useEffect(() => {
@@ -108,26 +107,46 @@ export default function CustomJersey() {
           <h1 className="mt-1 text-4xl font-black">Design your jersey</h1>
           <p className="mt-1 text-ink/50">Pick a fabric, colour, name & number, font and crest. Premium quality, team pricing.</p>
         </div>
-        <button onClick={() => setSizeOpen(true)} className="btn-ghost text-xs"><Ruler size={15} /> Size chart</button>
+        <a href="#sizechart" className="btn-ghost text-xs"><Ruler size={15} /> Size chart</a>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_460px]">
         {/* live preview */}
-        <div className="relative flex items-center justify-center rounded-3xl bg-chalk p-6">
-          <div className="relative w-full max-w-[420px]" style={{ aspectRatio: '600 / 700' }}>
-            <img src={baseJersey} alt="Custom jersey preview" className="absolute inset-0 h-full w-full object-contain" />
-            {logo && <img src={logo} alt="crest" className="absolute left-1/2 top-[30%] h-12 w-12 -translate-x-1/2 rounded object-contain" />}
-            {name && (
-              <div className="absolute left-1/2 top-[33%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-black uppercase tracking-widest text-white"
-                   style={{ fontFamily: font?.family, fontSize: 'clamp(12px, 3.4vw, 22px)', WebkitTextStroke: '1px #0B0B0F' }}>
-                {name.slice(0, 12)}
+        <div className="space-y-4">
+          <div className="relative flex items-center justify-center rounded-3xl bg-chalk p-6">
+            <div className="relative w-full max-w-[420px]" style={{ aspectRatio: '600 / 700' }}>
+              <img src={baseJersey} alt="Custom jersey preview" className="absolute inset-0 h-full w-full object-contain" />
+              {logo && <img src={logo} alt="crest" className="absolute left-1/2 top-[30%] h-12 w-12 -translate-x-1/2 rounded object-contain" />}
+              {name && (
+                <div className="absolute left-1/2 top-[33%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-black uppercase tracking-widest text-white"
+                     style={{ fontFamily: font?.family, fontSize: 'clamp(12px, 3.4vw, 22px)', WebkitTextStroke: '1px #0B0B0F' }}>
+                  {name.slice(0, 12)}
+                </div>
+              )}
+              <div className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 font-black text-white"
+                   style={{ fontFamily: font?.family, fontSize: 'clamp(64px, 22vw, 150px)', lineHeight: 1, WebkitTextStroke: '2px #0B0B0F' }}>
+                {number || '0'}
               </div>
-            )}
-            <div className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 font-black text-white"
-                 style={{ fontFamily: font?.family, fontSize: 'clamp(64px, 22vw, 150px)', lineHeight: 1, WebkitTextStroke: '2px #0B0B0F' }}>
-              {number || '0'}
             </div>
           </div>
+
+          {/* design gallery */}
+          {(cfg.gallery || []).length > 0 && (
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <p className="label mb-0">Design gallery</p>
+                <span className="text-xs text-ink/40">Get inspired · {cfg.gallery.length} designs</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {cfg.gallery.map((src, i) => (
+                  <div key={i} className="aspect-square overflow-hidden rounded-xl border border-ink/10 bg-chalk">
+                    <img src={src} alt={`Design ${i + 1}`} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-ink/50">Like a design? Mention its number when you request a quote and we'll match it.</p>
+            </div>
+          )}
         </div>
 
         {/* controls */}
@@ -259,20 +278,189 @@ export default function CustomJersey() {
         </div>
       </div>
 
-      <Modal open={sizeOpen} onClose={() => setSizeOpen(false)} title="Size chart" wide>
-        <p className="mb-3 text-xs text-ink/50">Measurements in inches. Pick the size closest to your chest measurement.</p>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <SizeTable title="Men's" rows={MENS} />
-          <SizeTable title="Kids" rows={KIDS} />
+      {/* ============ SHOWCASE SECTIONS (Tribe-style) ============ */}
+
+      {/* Design gallery */}
+      {(cfg.gallery || []).length > 0 && (
+        <section className="mt-20">
+          <div className="mb-6 text-center">
+            <span className="kicker">Design gallery</span>
+            <h2 className="mt-1 text-3xl font-black sm:text-4xl">1000+ designs to personalise</h2>
+            <p className="mx-auto mt-2 max-w-xl text-ink/50">Premium jerseys with affordable pricing you can trust. Pick a design, change colours, add your name & number — or bring your own idea.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {cfg.gallery.map((src, i) => (
+              <div key={i} className="group aspect-square overflow-hidden rounded-2xl border border-ink/10 bg-chalk">
+                <img src={src} alt={`Design ${i + 1}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Price table */}
+      <section className="mt-20">
+        <div className="mb-6 text-center">
+          <span className="kicker">Price table</span>
+          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Affordable, yet premium</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-ink/50">Base prices are for round-neck half-sleeve jerseys by fabric quality. Extra options are in the add-ons chart.</p>
         </div>
-        <p className="mt-4 rounded-xl bg-chalk p-3 text-xs text-ink/60">Kids sizes: body growth varies and the neck opening may not fit — please choose carefully.</p>
-      </Modal>
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          <div className="card overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-ink text-left text-xs uppercase tracking-wide text-paper">
+                  <tr><th className="px-4 py-3">Fabric</th><th className="px-4 py-3">MOQ</th><th className="px-4 py-3 text-right">Price / pc</th></tr>
+                </thead>
+                <tbody className="divide-y divide-ink/5">
+                  {cfg.fabrics.map((f) => (
+                    <tr key={f.id} className="hover:bg-ink/[0.02]">
+                      <td className="px-4 py-3 font-bold">
+                        <span className="flex items-center gap-2">
+                          <span className="h-6 w-6 overflow-hidden rounded border border-ink/10" style={{ background: f.color }}>{f.image && <img src={f.image} alt="" className="h-full w-full object-cover" />}</span>
+                          {f.name}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-ink/60">{f.moq} pcs</td>
+                      <td className="px-4 py-3 text-right font-black">{money(f.price)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="card p-5">
+            <h3 className="mb-3 text-sm font-black uppercase tracking-wide text-ink/60">Add-ons</h3>
+            <AddonRow title="Sleeve" items={cfg.sleeves} />
+            <AddonRow title="Neck" items={cfg.necks} />
+            <div className="mt-3 border-t border-ink/10 pt-3">
+              <div className="flex items-center justify-between text-sm"><span className="text-ink/60">Back name</span><span className="font-bold">Free</span></div>
+              <div className="flex items-center justify-between text-sm"><span className="text-ink/60">Back number</span><span className="font-bold">Free</span></div>
+              <div className="flex items-center justify-between text-sm"><span className="text-ink/60">Front number</span><span className="font-bold">+{money(Number(cfg.frontNumberFee) || 15)}</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fabric */}
+      <section className="mt-20 rounded-3xl bg-ink px-6 py-12 text-paper">
+        <div className="mb-8 text-center">
+          <span className="kicker text-volt">Fabric</span>
+          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Soft, comfortable, premium feel</h2>
+          <p className="mx-auto mt-2 max-w-xl text-paper/60">Our fabrics are carefully selected and rigorously tested for comfort, durability and style — a soft, breathable feel every time you wear it.</p>
+        </div>
+        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+          {cfg.fabrics.map((f) => (
+            <div key={f.id} className="text-center">
+              <div className="mx-auto aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10" style={{ background: f.color }}>
+                {f.image && <img src={f.image} alt={f.name} className="h-full w-full object-cover" />}
+              </div>
+              <p className="mt-2 text-xs font-bold">{f.name}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Size chart */}
+      <section id="sizechart" className="mt-20 scroll-mt-24">
+        <div className="mb-6 text-center">
+          <span className="kicker">Size chart</span>
+          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Your perfect fit, guaranteed</h2>
+          <p className="mx-auto mt-2 max-w-xl text-ink/50">Measurements in inches. Pick the size closest to your chest measurement.</p>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="card p-5"><SizeTable title="Men's" rows={MENS} /></div>
+          <div className="card p-5"><SizeTable title="Kids" rows={KIDS} /></div>
+        </div>
+        <p className="mx-auto mt-4 max-w-2xl rounded-xl bg-chalk p-3 text-center text-xs text-ink/60">Kids sizes: body growth varies and the neck opening may not fit — please choose carefully.</p>
+      </section>
+
+      {/* Font collection */}
+      <section className="mt-20">
+        <div className="mb-6 text-center">
+          <span className="kicker">Font collection</span>
+          <h2 className="mt-1 text-3xl font-black sm:text-4xl">Make your name stand out</h2>
+          <p className="mx-auto mt-2 max-w-xl text-ink/50">A selection of premium jersey fonts. Choose your favourite for your name and number.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {cfg.fonts.map((f) => (
+            <div key={f.id || f.label} className="card flex flex-col items-center justify-center gap-1 p-5">
+              <span className="text-3xl font-black leading-none" style={{ fontFamily: f.family }}>17</span>
+              <span className="text-sm font-bold" style={{ fontFamily: f.family }}>JRSY</span>
+              <span className="mt-1 text-[10px] uppercase tracking-wide text-ink/40">{f.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Shipping partners + charges */}
+      <ShippingSection couriers={cfg.shipping || []} />
     </div>
   )
 }
 
 function Row({ label, value }) {
   return <div className="flex items-center justify-between"><span className="text-ink/60">{label}</span><span className="font-bold">{value}</span></div>
+}
+function AddonRow({ title, items }) {
+  return (
+    <div className="mb-3">
+      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-ink/40">{title}</p>
+      {items.map((it) => (
+        <div key={it.id} className="flex items-center justify-between text-sm">
+          <span className="text-ink/60">{it.name}</span>
+          <span className="font-bold">{it.fee ? `+${money(it.fee)}` : 'Free'}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ShippingSection({ couriers }) {
+  const [tab, setTab] = useState(couriers[0]?.id || '')
+  if (!couriers.length) return null
+  const active = couriers.find((c) => c.id === tab) || couriers[0]
+  return (
+    <section className="mb-4 mt-20">
+      <div className="mb-6 text-center">
+        <span className="kicker">Delivery</span>
+        <h2 className="mt-1 text-3xl font-black sm:text-4xl">Shipping charge</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-ink/50">We work with trusted courier partners across Bangladesh. Charges depend on the number of pieces and the destination.</p>
+      </div>
+
+      {/* courier tabs */}
+      <div className="mb-5 flex flex-wrap justify-center gap-2">
+        {couriers.map((c) => (
+          <button key={c.id} onClick={() => setTab(c.id)}
+                  className={`rounded-full px-5 py-2.5 text-sm font-bold transition ${active.id === c.id ? 'bg-ink text-paper' : 'bg-white text-ink/60 hover:bg-ink/5'}`}>
+            {c.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="mx-auto max-w-2xl">
+        <p className="mb-3 text-center text-sm text-ink/60"><span className="font-bold">{active.name}</span> — {active.kind} · {active.info}</p>
+        <div className="card overflow-hidden p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-ink/[0.04] text-left text-xs uppercase tracking-wide text-ink/50">
+                <tr><th className="px-4 py-3">Pieces</th><th className="px-4 py-3">Inside Dhaka</th><th className="px-4 py-3">Outside Dhaka</th></tr>
+              </thead>
+              <tbody className="divide-y divide-ink/5">
+                {active.rates.map((r, i) => (
+                  <tr key={i} className="hover:bg-ink/[0.02]">
+                    <td className="px-4 py-2.5 font-bold">{r[0]}</td>
+                    <td className="px-4 py-2.5">{money(r[1])}</td>
+                    <td className="px-4 py-2.5">{r[2] ? money(r[2]) : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }
 function SizeTable({ title, rows }) {
   return (
