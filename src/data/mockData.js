@@ -1,0 +1,195 @@
+import { jerseySvg } from '../utils/jersey'
+
+const now = Date.now()
+const ago = (d) => now - d * 86400000
+const P = (name) => `/products/${name}.jpg` // real product photos in /public/products
+
+export const seedCategories = [
+  { id: 'football', name: 'Football', slug: 'football', group: 'Football', order: 1, active: true, image: '' },
+  { id: 'club-jerseys', name: 'Club Jerseys', slug: 'club-jerseys', group: 'Football', order: 2, active: true, image: '' },
+  { id: 'national-teams', name: 'National Teams', slug: 'national-teams', group: 'Football', order: 3, active: true, image: '' },
+  { id: 'retro', name: 'Retro Jerseys', slug: 'retro', group: 'Football', order: 4, active: true, image: '' },
+  { id: 'cricket', name: 'Cricket', slug: 'cricket', group: 'Cricket', order: 5, active: true, image: '' },
+  { id: 'franchise', name: 'Franchise Jerseys', slug: 'franchise', group: 'Cricket', order: 6, active: true, image: '' },
+  { id: 'accessories', name: 'Accessories', slug: 'accessories', group: 'Custom', order: 7, active: true, image: '/products/cap-black.jpg' },
+  { id: 'custom', name: 'Custom Jersey', slug: 'custom', group: 'Custom', order: 8, active: true, image: '' },
+]
+
+const SIZES = ['S', 'M', 'L', 'XL', 'XXL']
+const stock = (arr) => SIZES.reduce((o, s, i) => ((o[s] = arr[i] ?? 0), o), {})
+
+function make(p) {
+  const images = p.images || [
+    jerseySvg({ primary: p.c1, secondary: p.c2, number: p.number, name: p.short, pattern: p.pattern }),
+    jerseySvg({ primary: p.c2, secondary: p.c1, number: p.number, name: p.short, pattern: 'plain' }),
+  ]
+  const sizeStock = p.sizeStock || stock(p.stock || [8, 20, 30, 18, 6])
+  const total = Object.values(sizeStock).reduce((a, b) => a + b, 0)
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    sku: p.sku,
+    category: p.category,
+    subcategory: p.subcategory || '',
+    team: p.team,
+    season: p.season || '2025/26',
+    jerseyType: p.jerseyType || 'Home',
+    brand: 'SPORTY',
+    description:
+      p.description ||
+      `Match-grade ${p.team} ${p.jerseyType || 'Home'} jersey. Breathable moisture-wicking knit, tailored athletic fit, and heat-pressed detailing built to last from the pitch to the streets.`,
+    shortDescription: p.shortDescription || `${p.team} ${p.season || ''} ${p.jerseyType || 'Home'} kit`,
+    price: p.price,
+    salePrice: p.salePrice || 0,
+    sizes: SIZES,
+    sizeStock,
+    totalStock: total,
+    images,
+    status: 'active',
+    featured: !!p.featured,
+    newArrival: !!p.newArrival,
+    bestSeller: !!p.bestSeller,
+    rating: p.rating || 4.6,
+    reviewCount: p.reviewCount || 12,
+    sold: p.sold || 40,
+    createdAt: p.createdAt || ago(20),
+    updatedAt: now,
+  }
+}
+
+export const seedProducts = [
+  make({ id: 'p1', name: 'Good Vibes Home Kit', slug: 'good-vibes-home-kit', sku: 'SPORTY-FB-001', category: 'club-jerseys', team: 'Crimson FC', jerseyType: 'Home', images: [P('kit-goodvibes'), P('kit-crimson-navy')], description: 'Sublimated Crimson FC home kit with all-over dye print, ventilated athletic fit and a smooth number-plate back. Customisable with your name, number, sponsor and team logo.', shortDescription: 'Crimson FC 2025/26 sublimated home kit', price: 2490, salePrice: 1990, featured: true, bestSeller: true, sold: 180, rating: 4.8, reviewCount: 42, createdAt: ago(30) }),
+  make({ id: 'p2', name: 'Blue Fade Away Jersey', slug: 'blue-fade-away-jersey', sku: 'SPORTY-FB-002', category: 'club-jerseys', team: 'Sky Blues', jerseyType: 'Away', images: [P('jersey-blue-fade'), P('jersey-navy-sponsor')], description: 'Sky Blues away jersey with a crisp blue-to-white fade, moisture-wicking knit and heat-pressed detailing. Front and back name-set ready.', shortDescription: 'Sky Blues away fade jersey', price: 2390, featured: true, newArrival: true, sold: 96, createdAt: ago(5) }),
+  make({ id: 'p3', name: 'Ipsum Gradient Jersey', slug: 'ipsum-gradient-jersey', sku: 'SPORTY-NT-003', category: 'national-teams', team: 'Ipsum FC', jerseyType: 'Home', images: [P('jersey-ipsum-red')], description: 'Bold red-to-indigo gradient national jersey with a modern collar and pro-cut sleeves. Breathable and built for match day.', shortDescription: 'Ipsum FC gradient home jersey', price: 2690, salePrice: 2290, bestSeller: true, sold: 220, rating: 4.9, reviewCount: 63, createdAt: ago(40) }),
+  make({ id: 'p4', name: 'Red Nation Full Kit', slug: 'red-nation-full-kit', sku: 'SPORTY-NT-004', category: 'national-teams', team: 'Los Rojos', jerseyType: 'Home', images: [P('kit-red-full')], description: 'Complete match kit — jersey, shorts and socks — in a clean red-and-navy scheme. Everything you need to kit out the whole squad.', shortDescription: 'Jersey + shorts + socks full kit', price: 3290, featured: true, newArrival: true, sold: 140, createdAt: ago(3) }),
+  make({ id: 'p5', name: 'Deploy Heritage Jersey', slug: 'deploy-heritage-jersey', sku: 'SPORTY-RT-005', category: 'retro', team: 'Heritage XI', jerseyType: 'Retro', images: [P('kit-crimson-duo'), P('kit-crimson-navy')], description: 'Retro-inspired Deploy kit in dual navy and crimson colourways with a soundwave graphic down the centre. Placeholder-ready for your crest and sponsor.', shortDescription: 'Heritage XI retro dual kit', price: 2990, salePrice: 2490, bestSeller: true, sold: 74, createdAt: ago(60) }),
+  make({ id: 'p6', name: 'Night Kit Goalkeeper Jersey', slug: 'night-kit-goalkeeper-jersey', sku: 'SPORTY-FB-006', category: 'club-jerseys', team: 'Crimson FC', jerseyType: 'GK', images: [P('jersey-navy-sponsor'), P('kit-crimson-duo')], description: 'Long-wearing goalkeeper jersey in deep navy with a subtle print and sponsor block. Padded-friendly athletic cut.', shortDescription: 'Crimson FC goalkeeper night kit', price: 2590, newArrival: true, sold: 33, stock: [4, 10, 12, 6, 2], createdAt: ago(2) }),
+  make({ id: 'p7', name: 'Tigers Pro Cricket Jersey', slug: 'tigers-pro-cricket-jersey', sku: 'SPORTY-CR-007', category: 'cricket', team: 'Tigers', season: '2026', jerseyType: 'ODI', images: [P('kit-crimson-navy')], description: 'Tigers ODI cricket jersey in red and navy with lightweight breathable mesh panels. Sublimation-ready for team names and sponsors.', shortDescription: 'Tigers 2026 ODI cricket jersey', price: 2290, salePrice: 1890, featured: true, bestSeller: true, sold: 260, rating: 4.9, reviewCount: 88, createdAt: ago(25) }),
+  make({ id: 'p8', name: 'Blue Storm T20 Jersey', slug: 'blue-storm-t20-jersey', sku: 'SPORTY-CR-008', category: 'cricket', team: 'Men in Blue', season: '2026', jerseyType: 'T20', images: [P('jersey-blue-fade')], description: 'T20 cricket jersey with an electric blue fade and quick-dry knit. Made for fast-format match days.', shortDescription: 'Men in Blue 2026 T20 jersey', price: 2390, featured: true, sold: 190, createdAt: ago(12) }),
+  make({ id: 'p9', name: 'Pro Cricket Trousers', slug: 'pro-cricket-trousers', sku: 'SPORTY-CR-009', category: 'cricket', team: 'SPORTY Pro', season: '2026', jerseyType: 'Bottoms', images: [P('trousers-cricket'), P('trousers-red')], description: 'Sublimated cricket trousers in red and black with an elastic drawcord waist and tapered athletic leg. Pairs with any SPORTY cricket top.', shortDescription: 'Sublimated pro cricket trousers', price: 1690, newArrival: true, sold: 58, createdAt: ago(4) }),
+  make({ id: 'p10', name: 'Match Trousers — Red', slug: 'match-trousers-red', sku: 'SPORTY-CR-010', category: 'cricket', team: 'SPORTY Pro', season: '2026', jerseyType: 'Bottoms', images: [P('trousers-red')], description: 'Lightweight red match trousers with a comfortable stretch waistband. Team-ready and easy to customise.', shortDescription: 'Red match trousers', price: 1590, salePrice: 1290, sold: 71, createdAt: ago(9) }),
+  make({ id: 'p11', name: 'Street Third Kit Jersey', slug: 'street-third-kit-jersey', sku: 'SPORTY-FB-011', category: 'club-jerseys', team: 'Sky Blues', jerseyType: 'Third', images: [P('kit-crimson-navy'), P('jersey-ipsum-red')], description: 'Street-ready third kit with a bold graphic print — as good off the pitch as on it. Name-set ready.', shortDescription: 'Sky Blues street third kit', price: 2490, newArrival: true, sold: 44, createdAt: ago(1) }),
+  make({ id: 'p12', name: 'Ipsum Nacional Jersey', slug: 'ipsum-nacional-jersey', sku: 'SPORTY-NT-012', category: 'national-teams', team: 'Ipsum National', jerseyType: 'Home', images: [P('jersey-ipsum-red')], description: 'National-team gradient jersey with a premium collar and pro fit. A clean, modern look for supporters and squads alike.', shortDescription: 'Ipsum National gradient jersey', price: 2690, bestSeller: true, sold: 132, createdAt: ago(35) }),
+  make({ id: 'p13', name: 'Sideline Cap', slug: 'sideline-cap', sku: 'SPORTY-AC-013', category: 'accessories', team: 'SPORTY', jerseyType: 'Cap', images: [P('cap-black')], sizeStock: { S: 0, M: 40, L: 40, XL: 0, XXL: 0 }, description: 'Structured black six-panel cap with an embroidered monogram and an adjustable strap back. Finish your matchday look.', shortDescription: 'Embroidered adjustable cap', price: 890, newArrival: true, sold: 61, createdAt: ago(6) }),
+]
+
+export const seedBanners = [
+  { id: 'b1', title: 'NEW SEASON KITS', subtitle: 'Play. Wear. Repeat.', cta: 'Shop Collection', url: '/shop?filter=new', image: '/products/kit-goodvibes.jpg', active: true, order: 1 },
+  { id: 'b2', title: 'CUSTOM JERSEYS', subtitle: 'Your name, number, sponsor & logo.', cta: 'Build Yours', url: '/custom', image: '/products/jersey-ipsum-red.jpg', active: true, order: 2 },
+  { id: 'b3', title: 'CRICKET 2026', subtitle: 'Match-day kits & trousers.', cta: 'Shop Cricket', url: '/cricket', image: '/products/trousers-cricket.jpg', active: true, order: 3 },
+]
+
+export const seedCoupons = [
+  { id: 'c1', code: 'SPORTY10', type: 'percent', amount: 10, minOrder: 2000, maxDiscount: 500, expiry: ago(-60), usageLimit: 500, used: 24, active: true },
+  { id: 'c2', code: 'FLAT200', type: 'fixed', amount: 200, minOrder: 2500, maxDiscount: 200, expiry: ago(-30), usageLimit: 200, used: 11, active: true },
+]
+
+export const seedReviews = [
+  { id: 'r1', productId: 'p1', customerName: 'Tanvir H.', rating: 5, comment: 'Fabric quality is unreal for the price. Fits true to size.', approved: true, createdAt: ago(8) },
+  { id: 'r2', productId: 'p7', customerName: 'Sadia R.', rating: 5, comment: 'Wore it to the match — got so many compliments!', approved: true, createdAt: ago(4) },
+  { id: 'r3', productId: 'p3', customerName: 'Imran K.', rating: 4, comment: 'Great kit, delivery was quick. Would buy again.', approved: true, createdAt: ago(15) },
+]
+
+export const seedSettings = {
+  storeName: 'SPORTY',
+  tagline: 'Play. Wear. Repeat.',
+  logo: '',
+  phone: '+880 1700-000000',
+  email: 'hello@jrsy.com',
+  address: 'Aftab Nagar, Dhaka, Bangladesh',
+  deliveryCharge: 80,
+  freeDeliveryThreshold: 3000,
+  currency: '৳',
+  social: { facebook: '#', instagram: '#', youtube: '#' },
+  footer: 'SPORTY is a modern jersey label for football and cricket fans. Built for the pitch, styled for the street.',
+  storeOpen: true,
+}
+
+// A demo admin + a couple of orders/customers so the dashboard isn't empty.
+export const seedUsers = [
+  { uid: 'admin-demo', name: 'Store Admin', email: 'admin@jrsy.com', phone: '+880 1700-000000', role: 'admin', createdAt: ago(120) },
+  { uid: 'cust-1', name: 'Tanvir Hasan', email: 'tanvir@example.com', phone: '+880 1811-111111', role: 'customer', createdAt: ago(30) },
+  { uid: 'cust-2', name: 'Sadia Rahman', email: 'sadia@example.com', phone: '+880 1922-222222', role: 'customer', createdAt: ago(12) },
+]
+
+export const seedOrders = [
+  {
+    id: 'o1', orderNumber: 'SPORTY-2026-00001', customerId: 'cust-1', customerName: 'Tanvir Hasan',
+    phone: '+880 1811-111111', email: 'tanvir@example.com',
+    items: [{ productId: 'p1', productName: 'Good Vibes Home Kit', image: seedProducts[0].images[0], size: 'L', quantity: 1, price: 1990 }],
+    subtotal: 1990, discount: 0, deliveryCharge: 80, total: 2070,
+    paymentMethod: 'Cash on Delivery', paymentStatus: 'unpaid', orderStatus: 'Delivered',
+    shippingAddress: { fullName: 'Tanvir Hasan', address: 'House 12, Road 4', city: 'Dhaka', area: 'Banani' },
+    createdAt: ago(10), updatedAt: ago(7),
+  },
+  {
+    id: 'o2', orderNumber: 'SPORTY-2026-00002', customerId: 'cust-2', customerName: 'Sadia Rahman',
+    phone: '+880 1922-222222', email: 'sadia@example.com',
+    items: [
+      { productId: 'p7', productName: 'Tigers Pro Cricket Jersey', image: seedProducts[6].images[0], size: 'M', quantity: 2, price: 1890 },
+    ],
+    subtotal: 3780, discount: 378, deliveryCharge: 0, total: 3402,
+    paymentMethod: 'Cash on Delivery', paymentStatus: 'unpaid', orderStatus: 'Processing',
+    shippingAddress: { fullName: 'Sadia Rahman', address: 'Flat 3B, Green Road', city: 'Dhaka', area: 'Dhanmondi' },
+    createdAt: ago(2), updatedAt: ago(1),
+  },
+]
+
+// ---- Custom Jersey builder config (admin-editable, stored at settings/custom) ----
+export const seedCustomConfig = {
+  fabrics: [
+    { id: 'pp',    name: 'PP',                 price: 250, mrp: 280, moq: 20, color: '#C9CDD4', image: '' },
+    { id: 'mesh',  name: 'Mesh',               price: 250, mrp: 300, moq: 15, color: '#8FA3B0', image: '' },
+    { id: 'birds', name: 'Birdseye',           price: 350, mrp: 0,   moq: 10, color: '#6E7B8B', image: '' },
+    { id: 'honey', name: 'Honeycomb',          price: 330, mrp: 380, moq: 10, color: '#B08968', image: '' },
+    { id: 'leaf',  name: 'Leaf Jacquard',      price: 350, mrp: 460, moq: 10, color: '#4C7A57', image: '' },
+    { id: 'china', name: 'China Spandex',      price: 330, mrp: 500, moq: 10, color: '#3B6FA0', image: '' },
+    { id: 'hcjac', name: 'Honeycomb Jacquard', price: 580, mrp: 0,   moq: 10, color: '#8A6D3B', image: '' },
+    { id: 'brush', name: 'Brush Jacquard',     price: 550, mrp: 0,   moq: 10, color: '#6B4E71', image: '' },
+    { id: 'nike',  name: 'Nike Jacquard',      price: 600, mrp: 0,   moq: 5,  color: '#2B2B2B', image: '' },
+  ],
+  sleeves: [
+    { id: 'sleeveless', name: 'Sleeveless', fee: 0 },
+    { id: 'half',       name: 'Half Sleeve', fee: 0 },
+    { id: 'full',       name: 'Full Sleeve', fee: 30 },
+  ],
+  necks: [
+    { id: 'round', name: 'Round Neck', fee: 0 },
+    { id: 'v',     name: 'V Neck',     fee: 10 },
+    { id: 'polo',  name: 'Polo Neck',  fee: 30 },
+  ],
+  frontNumberFee: 15,
+  gallery: [],
+  shipping: [
+    {
+      id: 'pathao', name: 'Pathao', kind: 'Home delivery',
+      info: 'Inside Dhaka 1–2 days · Outside 2–3 days',
+      rates: [
+        ['1-2', 60, 110], ['3-4', 70, 130], ['5-8', 90, 170], ['9-12', 110, 200],
+        ['13-16', 130, 230], ['17-20', 150, 260], ['21-24', 170, 290], ['25-28', 190, 320],
+        ['29-32', 210, 350], ['33-36', 230, 380], ['37-40', 250, 410], ['41-48', 280, 460], ['49-58', 325, 510],
+      ],
+    },
+    {
+      id: 'sa', name: 'SA Paribahan', kind: 'Hub to hub',
+      info: 'Inside & outside Dhaka in 1 day',
+      rates: [['1-5', 80, 120], ['6-10', 120, 160], ['11-20', 180, 240], ['21-40', 300, 420], ['41-58', 420, 600]],
+    },
+    {
+      id: 'rider', name: 'Rider', kind: 'Instant (Dhaka only)',
+      info: 'Delivered within 10 hours',
+      rates: [['1-4', 100, 0], ['5-10', 150, 0], ['11-20', 220, 0], ['21-40', 380, 0]],
+    },
+  ],
+  colors: ['#B4122A', '#1E7FD6', '#0E7A3B', '#0B0B0F', '#F5B000', '#E0398A'],
+  fonts: [
+    { id: 'archivo',  label: 'Classic',   family: "'Archivo', sans-serif" },
+    { id: 'anton',    label: 'Bold',      family: "'Anton', sans-serif" },
+    { id: 'teko',     label: 'Tall',      family: "'Teko', sans-serif" },
+    { id: 'oswald',   label: 'Condensed', family: "'Oswald', sans-serif" },
+    { id: 'rajdhani', label: 'Tech',      family: "'Rajdhani', sans-serif" },
+    { id: 'saira',    label: 'Sport',     family: "'Saira Condensed', sans-serif" },
+  ],
+  note: 'Customized products require advance payment.',
+}
