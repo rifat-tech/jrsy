@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isImage() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5 MB cap
+    }
+
+    // Product/category/banner media — public read, admin write
+    match /products/{file=**}   { allow read: if true; allow write: if isAdmin() && isImage(); }
+    match /categories/{file=**} { allow read: if true; allow write: if isAdmin() && isImage(); }
+    match /banners/{file=**}    { allow read: if true; allow write: if isAdmin() && isImage(); }
+
+    // Custom jersey uploads & profile pics — public read, any signed-in user writes an image
+    match /custom-jerseys/{file=**} { allow read: if true; allow write: if request.auth != null && isImage(); }
+    match /profiles/{file=**}       { allow read: if true; allow write: if request.auth != null && isImage(); }
+  }
+}
